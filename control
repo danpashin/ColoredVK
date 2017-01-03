@@ -1,0 +1,9 @@
+Package: com.daniilpashin.coloredvk
+Name: ColoredVK
+Depends: mobilesubstrate, firmware (>= 7.0)
+Version: 2.9.3
+Architecture: iphoneos-arm
+Description: Change your VK App toolbar and navigation bar colors
+Maintainer: Daniil Pashin <daniilpashin@icloud.com>
+Author: Daniil Pashin <daniilpashin@icloud.com>
+Section: Tweaks

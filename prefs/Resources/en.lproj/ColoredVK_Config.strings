@@ -1,0 +1,22 @@
+"COLOR" = "Select color";
+
+"BAR_COLOR" = "Navigation bar color";
+"BAR_BUTTONS_COLOR" = "Navigation bar buttons color";
+"BACKGROUND_COLOR" = "Background color";
+"WRITE_LINE_COLOR" = "Cursor color";
+"SB_COLOR" = "Status bar color";
+
+"ENABLED_IMAGE" = "Image instead of color";
+"IMAGE" = "Select image";
+
+"ADV_BAR" = "Advanced settings";
+"BLACK_KB" = "Black keyboard";
+
+"NAVIGATION_BAR" = "Navigation bar";
+"TOOLBAR" = "Toolbar";
+"TOOLBAR_COLOR" = "Toolbar color";
+"SELECT_FG_COLOR" = "Foreground color";
+"SELECT_BG_COLOR" = "Background color";
+"OTHER" = "Other";
+
+"SHOW_BAR" = "Always show nav bar";
