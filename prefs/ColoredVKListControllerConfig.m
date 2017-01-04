@@ -17,7 +17,8 @@
 
 
 @implementation ColoredVKListControllerConfig
-- (id)specifiers {
+- (id)specifiers
+{
 	if(!_specifiers) {
         _specifiers = [self loadSpecifiersFromPlistName:@"ColoredVK_Config" target:self];
     }
@@ -25,7 +26,8 @@
 }
 
 
-- (id) readPreferenceValue:(PSSpecifier*)specifier {
+- (id)readPreferenceValue:(PSSpecifier*)specifier
+{
     NSDictionary *tweakSettings = [NSDictionary dictionaryWithContentsOfFile:tweakPreferencePath];
     if (!tweakSettings[specifier.properties[@"key"]]) {
         return specifier.properties[@"default"];
@@ -33,14 +35,16 @@
     return tweakSettings[specifier.properties[@"key"]];
 }
 
-- (void)showColorPicker:(PSSpecifier *)specifier {
+- (void)showColorPicker:(PSSpecifier *)specifier
+{
     ColorPickerViewController *picker = [[ColorPickerViewController alloc] initWithIdentifier:[specifier identifier]];
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:picker];
     nav.modalPresentationStyle = 2;
     [self.navigationController presentViewController:nav animated:YES completion:nil];
 }
 
-- (void)setPreferenceValue:(id)value specifier:(PSSpecifier *)specifier {
+- (void)setPreferenceValue:(id)value specifier:(PSSpecifier *)specifier
+{
     NSMutableDictionary *defaults = [NSMutableDictionary dictionary];
     [defaults addEntriesFromDictionary:[NSDictionary dictionaryWithContentsOfFile:tweakPreferencePath]];
     [defaults setObject:value forKey:specifier.properties[@"key"]];
@@ -48,14 +52,16 @@
     CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.daniilpashin.coloredvk.prefs.changed"), NULL, NULL, YES);
 }
 
-- (void) viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
     [UISwitch appearanceWhenContainedIn:self.class, nil].onTintColor = [UIColor colorWithRed:0.0 green:122.0/255.0 blue:1.0 alpha:1.0];
     [UISwitch appearanceWhenContainedIn:self.class, nil].tintColor = [UIColor colorWithRed:0.0 green:122.0/255.0 blue:1.0 alpha:1.0];
     self.navigationController.navigationBar.topItem.title = @"General";
 }
 
-- (void) chooseImage {
+- (void)chooseImage
+{
     CRMediaPickerController *mediaPickerController = [[CRMediaPickerController alloc] init];
     mediaPickerController.delegate = self;
     mediaPickerController.mediaType = CRMediaPickerControllerMediaTypeImage;
@@ -72,7 +78,7 @@
     if (suc) [self success];
 }
 
-- (void) success
+- (void)success
 {
     UIImage *checkmarkImage = [[UIImage alloc] initWithContentsOfFile:@"/Library/PreferenceBundles/ColoredVK.bundle/Checkmark.png"];
     checkmarkImage = [self image:checkmarkImage withTintColor:[UIColor whiteColor]];
@@ -86,7 +92,8 @@
     [hud hide:YES afterDelay:1.2];
 }
 
-- (UIImage *)imageByCropping:(UIImage *)imageToCrop toRect:(CGRect)rect {
+- (UIImage *)imageByCropping:(UIImage *)imageToCrop toRect:(CGRect)rect
+{
     
     CGImageRef imageRef = CGImageCreateWithImageInRect(imageToCrop.CGImage, rect);
     UIImage *cropped = [UIImage imageWithCGImage:imageRef];

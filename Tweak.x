@@ -1,59 +1,58 @@
+//
+//  Tweak.x
+//  ColoredVK
+//
+//  Copyright (c) 2015 Daniil Pashin. All rights reserved.
+//  
 
 #import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+
+static NSString *const tweakPreferencePath = @"/private/var/mobile/Library/Preferences/com.daniilpashin.coloredvk.plist";
+
 
 BOOL enabled = YES;
 BOOL enabledBarColor = YES;
 BOOL enabledBarImage = NO;
 BOOL enabledBarButtonsColor = NO;
-BOOL enabledBackgroundColor = NO;
+BOOL showBar = NO;
+BOOL enabledToolBarColor = NO;
 BOOL enabledWriteLineColor = NO;
 BOOL enabledSBColor = NO;
-BOOL showBar = NO;
 BOOL enabledBlackKB = NO;
-BOOL enabledToolBarColor = NO;
+
+UIColor *navbarColor;
+UIColor *navbarTintColor;
+UIColor *writeLineColor;
+UIColor *statusbarBackColor;
+UIColor *toolbarColor;
+UIColor *toolbarTintColor;
 
 
-CGFloat HueBar;
-CGFloat SatBar;
-CGFloat BriBar;
-
-CGFloat HueBarButtons;
-CGFloat SatBarButtons;
-CGFloat BriBarButtons;
-
-CGFloat HueBackground;
-CGFloat SatBackground;
-CGFloat BriBackground;
-
-CGFloat HueWriteLine;
-CGFloat SatWriteLine;
-CGFloat BriWriteLine;
-
-CGFloat HueSBColorFore;
-CGFloat SatSBColorFore;
-CGFloat BriSBColorFore;
-
-CGFloat HueSBColorBack;
-CGFloat SatSBColorBack;
-CGFloat BriSBColorBack;
-
-CGFloat HueToolBar;
-CGFloat SatToolBar;
-CGFloat BriToolBar;
-
-CGFloat HueToolBarBG;
-CGFloat SatToolBarBG;
-CGFloat BriToolBarBG;
+static UIColor *savedColorForIdentifier(NSString *identifier)
+{
+    NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile:tweakPreferencePath];
+    NSString *hueKey = [@"Hue" stringByAppendingString:identifier];
+    NSString *satKey = [@"Sat" stringByAppendingString:identifier];
+    NSString *briKey = [@"Bri" stringByAppendingString:identifier];
+    if (dict[hueKey] == nil || dict[satKey] == nil|| dict[briKey] == nil) return [UIColor blackColor];
+    CGFloat hue, sat, bri;
+    hue = [dict[hueKey] floatValue];
+    sat = [dict[satKey] floatValue];
+    bri = [dict[briKey] floatValue];
+    UIColor *color = [UIColor colorWithHue:hue saturation:sat brightness:bri alpha:1];
+    return color;
+}
 
 
 
 %hook NewsFeedController
-- (BOOL) VKMTableFullscreenEnabled
+- (BOOL)VKMTableFullscreenEnabled
 {
     if (enabled && showBar) return NO;
     return %orig;
 }
-- (BOOL) VKMScrollViewFullscreenEnabled
+- (BOOL)VKMScrollViewFullscreenEnabled
 {
     if (enabled && showBar) return NO;
     return %orig;
@@ -61,7 +60,7 @@ CGFloat BriToolBarBG;
 %end
 
 %hook PhotoFeedController
-- (BOOL) VKMTableFullscreenEnabled
+- (BOOL)VKMTableFullscreenEnabled
 {
     if (enabled && showBar) return NO;
     return %orig;
@@ -76,18 +75,18 @@ CGFloat BriToolBarBG;
 
 
 %hook UINavigationBar
-- (void) setBarTintColor:(UIColor *)barTintColor
+- (void)setBarTintColor:(UIColor *)barTintColor
 {
     if (enabled && enabledBarColor) {
         if (enabledBarImage) barTintColor = [UIColor colorWithPatternImage:[UIImage imageWithContentsOfFile:@"/private/var/mobile/Library/Preferences/navBarImage.png"]];
-        else barTintColor = [UIColor colorWithHue:HueBar saturation:SatBar brightness:BriBar alpha:1];
+        else barTintColor = navbarColor;
     }
     %orig;
 }
 
-- (void) setTintColor:(UIColor *)tintColor
+- (void)setTintColor:(UIColor *)tintColor
 {
-    if (enabled && enabledBarButtonsColor) tintColor = [UIColor colorWithHue:HueBarButtons saturation:SatBarButtons brightness:BriBarButtons alpha:1];
+    if (enabled && enabledBarButtonsColor) tintColor = navbarTintColor;
     %orig;
 }
 %end
@@ -95,9 +94,9 @@ CGFloat BriToolBarBG;
 
 
 %hook UITextInputTraits
-- (void) setInsertionPointColor:(UIColor *)pointColor
+- (void)setInsertionPointColor:(UIColor *)pointColor
 {
-    if (enabled && enabledWriteLineColor) pointColor = [UIColor colorWithHue:HueWriteLine saturation:SatWriteLine brightness:BriWriteLine alpha:1];
+    if (enabled && enabledWriteLineColor) pointColor = writeLineColor;
     %orig;
 }
 
@@ -112,7 +111,7 @@ CGFloat BriToolBarBG;
 %hook UIStatusBarNewUIStyleAttributes
 - (void) initWithRequest:(id)arg1 backgroundColor:(UIColor *)backgroundColor foregroundColor:(UIColor *)foregroundColor
 {
-    if (enabled && enabledSBColor) foregroundColor = [UIColor colorWithHue:HueSBColorFore saturation:SatSBColorFore brightness:BriSBColorFore alpha:1];
+    if (enabled && enabledSBColor) foregroundColor = statusbarBackColor;
     %orig;
 }
 %end
@@ -120,15 +119,15 @@ CGFloat BriToolBarBG;
 
 
 %hook UIToolbar
-- (void) setTintColor:(UIColor *)tintColor
+- (void)setTintColor:(UIColor *)tintColor
 {
-    if (enabled && enabledToolBarColor) tintColor = [UIColor colorWithHue:HueToolBar saturation:SatToolBar brightness:BriToolBar alpha:1];
+    if (enabled && enabledToolBarColor) tintColor = toolbarTintColor;
     %orig;
 }
 
-- (void) setBarTintColor:(UIColor *)barTintColor
+- (void)setBarTintColor:(UIColor *)barTintColor
 {
-    if (enabled && enabledToolBarColor) barTintColor = [UIColor colorWithHue:HueToolBarBG saturation:SatToolBarBG brightness:BriToolBarBG alpha:1];
+    if (enabled && enabledToolBarColor) barTintColor = toolbarColor;
     %orig;
 }
 %end
@@ -137,65 +136,41 @@ CGFloat BriToolBarBG;
 
 static void reloadPrefs()
 {
-    NSString *dictPath = @"/User/Library/Preferences/com.daniilpashin.coloredvk.plist";
-    NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:dictPath];
-    
-    [prefs setValue:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] forKey:@"VKVersion"];
-    [prefs writeToFile:dictPath atomically:YES];
-
+    NSDictionary *prefs = [NSDictionary dictionaryWithContentsOfFile:tweakPreferencePath];
         
-    enabled = ([prefs objectForKey:@"enabled"] ? [[prefs objectForKey:@"enabled"]  boolValue] : enabled);
-    enabledBarColor = ([prefs objectForKey:@"enabledBarColor"] ? [[prefs objectForKey:@"enabledBarColor"]  boolValue] : enabledBarColor);
-    enabledBarImage = ([prefs objectForKey:@"enabledImage"] ? [[prefs objectForKey:@"enabledImage"]  boolValue] : enabledBarImage);
-    enabledBarButtonsColor = ([prefs objectForKey:@"enabledBarButtonsColor"] ? [[prefs objectForKey:@"enabledBarButtonsColor"]  boolValue] : enabledBarButtonsColor);
-    enabledBackgroundColor = ([prefs objectForKey:@"enabledBackgroundColor"] ? [[prefs objectForKey:@"enabledBackgroundColor"]  boolValue] : enabledBackgroundColor);
-    enabledWriteLineColor = ([prefs objectForKey:@"enabledWriteLineColor"] ? [[prefs objectForKey:@"enabledWriteLineColor"]  boolValue] : enabledWriteLineColor);
-    enabledSBColor = ([prefs objectForKey:@"enabledSBColor"] ? [[prefs objectForKey:@"enabledSBColor"]  boolValue] : enabledSBColor);
-    showBar = ([prefs objectForKey:@"showBar"] ? [[prefs objectForKey:@"showBar"]  boolValue] : showBar);
+    enabled = [prefs objectForKey:@"enabled"]?[[prefs objectForKey:@"enabled"] boolValue]:enabled;
+    enabledBarColor = [prefs objectForKey:@"enabledBarColor"] ? [[prefs objectForKey:@"enabledBarColor"] boolValue]:enabledBarColor;
+    enabledBarImage = [prefs objectForKey:@"enabledImage"] ? [[prefs objectForKey:@"enabledImage"] boolValue] : enabledBarImage;
+    enabledBarButtonsColor = [prefs objectForKey:@"enabledBarButtonsColor"]?[[prefs objectForKey:@"enabledBarButtonsColor"] boolValue]:enabledBarButtonsColor;
+    showBar = [prefs objectForKey:@"showBar"]?[[prefs objectForKey:@"showBar"] boolValue]:showBar;
+    enabledToolBarColor = ([prefs objectForKey:@"enabledToolBarColor"]?[[prefs objectForKey:@"enabledToolBarColor"] boolValue]:enabledToolBarColor);
+    enabledWriteLineColor = [prefs objectForKey:@"enabledWriteLineColor"]?[[prefs objectForKey:@"enabledWriteLineColor"] boolValue]:enabledWriteLineColor;
+    enabledSBColor = [prefs objectForKey:@"enabledSBColor"]?[[prefs objectForKey:@"enabledSBColor"] boolValue]:enabledSBColor;
+    enabledBlackKB = ([prefs objectForKey:@"enabledBlackKB"]?[[prefs objectForKey:@"enabledBlackKB"] boolValue]:enabledBlackKB);
     
-    enabledBlackKB = ([prefs objectForKey:@"enabledBlackKB"] ? [[prefs objectForKey:@"enabledBlackKB"]  boolValue] : enabledBlackKB);
-    enabledToolBarColor = ([prefs objectForKey:@"enabledToolBarColor"] ? [[prefs objectForKey:@"enabledToolBarColor"]  boolValue] : enabledToolBarColor);
-    
-    HueBar = [[prefs valueForKey:@"HueBar"]  floatValue];
-    SatBar = [[prefs valueForKey:@"SatBar"]  floatValue];
-    BriBar = [[prefs valueForKey:@"BriBar"]  floatValue];
-    
-    HueBarButtons = [[prefs valueForKey:@"HueBarButtons"]  floatValue];
-    SatBarButtons = [[prefs valueForKey:@"SatBarButtons"]  floatValue];
-    BriBarButtons = [[prefs valueForKey:@"BriBarButtons"]  floatValue];
-    
-    HueBackground = [[prefs valueForKey:@"HueBackground"]  floatValue];
-    SatBackground = [[prefs valueForKey:@"SatBackground"]  floatValue];
-    BriBackground = [[prefs valueForKey:@"BriBackground"]  floatValue];
-    
-    HueWriteLine = [[prefs valueForKey:@"HueWriteLine"]  floatValue];
-    SatWriteLine = [[prefs valueForKey:@"SatWriteLine"]  floatValue];
-    BriWriteLine = [[prefs valueForKey:@"BriWriteLine"]  floatValue];
-    
-    HueSBColorFore = [[prefs valueForKey:@"HueSBColorFore"]  floatValue];
-    SatSBColorFore = [[prefs valueForKey:@"SatSBColorFore"]  floatValue];
-    BriSBColorFore = [[prefs valueForKey:@"BriSBColorFore"]  floatValue];
-
-    HueSBColorBack = [[prefs valueForKey:@"HueSBColorBack"]  floatValue];
-    SatSBColorBack = [[prefs valueForKey:@"SatSBColorBack"]  floatValue];
-    BriSBColorBack = [[prefs valueForKey:@"BriSBColorBack"]  floatValue];
-    
-    HueToolBar = [[prefs valueForKey:@"HueToolBar"]  floatValue];
-    SatToolBar = [[prefs valueForKey:@"SatToolBar"]  floatValue];
-    BriToolBar = [[prefs valueForKey:@"BriToolBar"]  floatValue];
-    
-    HueToolBarBG = [[prefs valueForKey:@"HueToolBarBG"]  floatValue];
-    SatToolBarBG = [[prefs valueForKey:@"SatToolBarBG"]  floatValue];
-    BriToolBarBG = [[prefs valueForKey:@"BriToolBarBG"]  floatValue];
+    navbarColor = savedColorForIdentifier(@"Bar");
+    navbarTintColor = savedColorForIdentifier(@"BarButtons");
+    writeLineColor = savedColorForIdentifier(@"WriteLine");
+    statusbarBackColor = savedColorForIdentifier(@"SBColorBack");
+    toolbarColor = savedColorForIdentifier(@"ToolBar");
+    toolbarTintColor = savedColorForIdentifier(@"ToolBarBG");
 }
 
-static void PostNotification(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) { reloadPrefs(); }
+static void PostNotification(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo)
+{
+    reloadPrefs();
+}
 
 %ctor {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, PostNotification, CFSTR("com.daniilpashin.coloredvk.prefs.changed"), NULL, CFNotificationSuspensionBehaviorCoalesce);
     
     reloadPrefs();
+    
+    NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:tweakPreferencePath];
+    
+    [prefs setValue:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] forKey:@"VKVersion"];
+    [prefs writeToFile:tweakPreferencePath atomically:YES];
     
     [pool drain];
 }

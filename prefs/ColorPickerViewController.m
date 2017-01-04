@@ -71,7 +71,8 @@ static NSString *const tweakPreferencePath = @"/User/Library/Preferences/com.dan
 }
 
 
-- (void) hexWindow {
+- (void) hexWindow
+{
     UIAlertController *alertCont = [UIAlertController alertControllerWithTitle:@"Hex" message:@"Enter a hexadecimal color code" preferredStyle:UIAlertControllerStyleAlert];
     
     [alertCont addTextFieldWithConfigurationHandler:^(UITextField *textField) { textField.placeholder = @"#000000"; }];
@@ -99,7 +100,8 @@ static NSString *const tweakPreferencePath = @"/User/Library/Preferences/com.dan
 
 
 
-- (UIColor *)colorWithHexString:(NSString *)str_HEX  alpha:(CGFloat)alpha_range{
+- (UIColor *)colorWithHexString:(NSString *)str_HEX  alpha:(CGFloat)alpha_range
+{
     int red = 0;
     int green = 0;
     int blue = 0;
@@ -107,7 +109,8 @@ static NSString *const tweakPreferencePath = @"/User/Library/Preferences/com.dan
     return  [UIColor colorWithRed:red/255.0 green:green/255.0 blue:blue/255.0 alpha:alpha_range];
 }
 
-- (NSString *)hexStringForColor:(UIColor *)color {
+- (NSString *)hexStringForColor:(UIColor *)color
+{
     const CGFloat *components = CGColorGetComponents(color.CGColor);
     CGFloat r = components[0];
     CGFloat g = components[1];
