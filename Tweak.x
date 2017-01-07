@@ -165,14 +165,8 @@ static void PostNotification(CFNotificationCenterRef center, void *observer, CFS
     CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, PostNotification, CFSTR("com.daniilpashin.coloredvk.prefs.changed"), NULL, CFNotificationSuspensionBehaviorCoalesce);
     
     reloadPrefs();
-<<<<<<< HEAD
-=======
-    
+
     NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:tweakPreferencePath];
-    
     [prefs setValue:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] forKey:@"VKVersion"];
     [prefs writeToFile:tweakPreferencePath atomically:YES];
-    
-    [pool drain];
->>>>>>> origin/master
 }
