@@ -8,7 +8,7 @@
 #import "ColoredVKListControllerConfig.h"
 
 #import <UIKit/UIKit.h>
-#import "MBProgressHUD.h"
+#import "MBProgressHUD/MBProgressHUD.h"
 #import <Foundation/Foundation.h>
 #import "headers/PSSpecifier.h"
 #import "ColorPickerViewController.h"
@@ -88,8 +88,8 @@
     hud.customView = [[UIImageView alloc] initWithImage:checkmarkImage];
     
     [self.navigationController.view addSubview:hud];
-    [hud show:YES];
-    [hud hide:YES afterDelay:1.2];
+    [hud showAnimated:YES];
+    [hud hideAnimated:YES afterDelay:1.2];
 }
 
 - (UIImage *)imageByCropping:(UIImage *)imageToCrop toRect:(CGRect)rect

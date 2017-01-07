@@ -1,0 +1,6 @@
+[submodule "prefs/MBProgressHUD"]
+	path = prefs/MBProgressHUD
+	url = https://github.com/jdg/MBProgressHUD
+[submodule "prefs/CRMediaPickerController"]
+	path = prefs/CRMediaPickerController
+	url = https://github.com/chroman/CRMediaPickerController

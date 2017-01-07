@@ -91,9 +91,9 @@ static NSString *const tweakPreferencePath = @"/User/Library/Preferences/com.dan
     
     NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:tweakPreferencePath];
 
-    NSString *device = (NSString *)MGCopyAnswer(kMGProductType);
-    NSString *os_version = (NSString *)MGCopyAnswer(kMGProductVersion);
-    NSString *os_build = (NSString *)MGCopyAnswer(kMGBuildVersion);
+    NSString *device = (__bridge NSString *)MGCopyAnswer(kMGProductType);
+    NSString *os_version = (__bridge NSString *)MGCopyAnswer(kMGProductVersion);
+    NSString *os_build = (__bridge NSString *)MGCopyAnswer(kMGBuildVersion);
     NSString *vk_version = [NSString stringWithFormat:@"%@", [prefs objectForKey:@"VKVersion"]];
 
     MFMailComposeViewController *email = [MFMailComposeViewController new];

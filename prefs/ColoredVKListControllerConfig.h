@@ -6,7 +6,7 @@
 //  
 
 #import "headers/PSListController.h"
-#import "CRMediaPickerController.h"
+#import "CRMediaPickerController/CRMediaPickerController/CRMediaPickerController.h"
 
 
 @interface ColoredVKListControllerConfig: PSListController  <CRMediaPickerControllerDelegate>

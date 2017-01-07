@@ -162,10 +162,11 @@ static void PostNotification(CFNotificationCenterRef center, void *observer, CFS
 }
 
 %ctor {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, PostNotification, CFSTR("com.daniilpashin.coloredvk.prefs.changed"), NULL, CFNotificationSuspensionBehaviorCoalesce);
     
     reloadPrefs();
+<<<<<<< HEAD
+=======
     
     NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:tweakPreferencePath];
     
@@ -173,4 +174,5 @@ static void PostNotification(CFNotificationCenterRef center, void *observer, CFS
     [prefs writeToFile:tweakPreferencePath atomically:YES];
     
     [pool drain];
+>>>>>>> origin/master
 }

@@ -431,7 +431,6 @@ CGFloat const NKOPickerViewCrossHairshWidthAndHeight    = 38.f;
 - (void)dealloc
 {
     CGGradientRelease(gradient);
-    [super dealloc];
 }
 
 @end
