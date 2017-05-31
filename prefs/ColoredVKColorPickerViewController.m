@@ -1,17 +1,17 @@
 //
-//  ColorPickerViewController.m
+//  ColoredVKColorPickerViewController.m
 //  ColoredVK
 //
 //  Copyright (c) 2015 Daniil Pashin. All rights reserved.
 //  
 
-#import "ColorPickerViewController.h"
+#import "ColoredVKColorPickerViewController.h"
 #import <Foundation/Foundation.h>
 
 static NSString *const tweakPreferencePath = @"/User/Library/Preferences/com.daniilpashin.coloredvk.plist";
 
 
-@implementation ColorPickerViewController
+@implementation ColoredVKColorPickerViewController
 - (void)colorDidChange:(UIColor *)color identifier:(NSString *)identifier
 {
     self.color = color;
@@ -50,7 +50,7 @@ static NSString *const tweakPreferencePath = @"/User/Library/Preferences/com.dan
 
 - (void)dismissPicker
 {
-    CGFloat hue, sat, bri;
+    CGFloat hue = 0, sat = 0, bri = 0;
     if ([self.color getHue:&hue saturation:&sat brightness:&bri alpha:nil]) {
         NSString *hueKey = [@"Hue" stringByAppendingString:self.identifier];
         NSString *satKey = [@"Sat" stringByAppendingString:self.identifier];
@@ -58,14 +58,14 @@ static NSString *const tweakPreferencePath = @"/User/Library/Preferences/com.dan
 
         
         NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithContentsOfFile:tweakPreferencePath];
-        [dict setObject:@(hue) forKey:hueKey];
-        [dict setObject:@(sat) forKey:satKey];
-        [dict setObject:@(bri) forKey:briKey];
+        [dict setValue:@(hue) forKey:hueKey];
+        [dict setValue:@(sat) forKey:satKey];
+        [dict setValue:@(bri) forKey:briKey];
         
-        if ([dict writeToFile:tweakPreferencePath atomically:YES]) {
-            CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.daniilpashin.coloredvk.prefs.changed"), NULL, NULL, YES);
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"com.daniilpashin.coloredvk.prefs.colorUpdate" object:nil userInfo:@{@"CVKColorCellIdentifier":self.identifier}];
-        }
+        [dict writeToFile:tweakPreferencePath atomically:YES];
+        
+        CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.daniilpashin.coloredvk.prefs.changed"), NULL, NULL, YES);
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"com.daniilpashin.coloredvk.prefs.colorUpdate" object:nil userInfo:@{@"CVKColorCellIdentifier":self.identifier}];
     }
     [self.parentViewController dismissViewControllerAnimated:YES completion:nil];
 }

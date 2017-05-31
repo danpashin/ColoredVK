@@ -1,5 +1,5 @@
 //
-//  CVKColorCell.h
+//  ColoredVKColorCell.h
 //  ColoredVK
 //
 //  Copyright (c) 2015 Daniil Pashin. All rights reserved.
@@ -9,6 +9,6 @@
 #import "headers/PSTableCell.h"
 
 
-@interface CVKColorCell : PSTableCell
+@interface ColoredVKColorCell : PSTableCell
 
 @end

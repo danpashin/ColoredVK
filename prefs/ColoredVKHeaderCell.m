@@ -14,7 +14,7 @@
     return [self initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"headerCell" specifier:specifier];
 }
 
-- (instancetype)initWithStyle:(int)style reuseIdentifier:(NSString *)reuseIdentifier specifier:(PSSpecifier *)specifier
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier specifier:(PSSpecifier *)specifier
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier specifier:specifier];
     if (self) {

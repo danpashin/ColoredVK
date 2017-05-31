@@ -8,7 +8,7 @@ include theos/makefiles/common.mk
 
 TWEAK_NAME = ColoredVK
 ColoredVK_FILES = Tweak.x
-ColoredVK_FRAMEWORKS = UIKit Foundation CoreFoundation CoreGraphics QuartzCore
+ColoredVK_FRAMEWORKS = UIKit Foundation
 ColoredVK_CFLAGS = -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/tweak.mk

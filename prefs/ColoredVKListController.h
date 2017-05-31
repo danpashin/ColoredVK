@@ -10,6 +10,8 @@
 #import <Foundation/Foundation.h>
 #import <MessageUI/MessageUI.h>
 
-@interface ColoredVKListController: PSListController <MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate>
+@interface ColoredVKListController: PSListController <MFMailComposeViewControllerDelegate>
+
+@property (strong, nonatomic) MFMailComposeViewController *email;
 
 @end

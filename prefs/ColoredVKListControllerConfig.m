@@ -11,7 +11,7 @@
 #import "MBProgressHUD/MBProgressHUD.h"
 #import <Foundation/Foundation.h>
 #import "headers/PSSpecifier.h"
-#import "ColorPickerViewController.h"
+#import "ColoredVKColorPickerViewController.h"
 
 #define tweakPreferencePath @"/private/var/mobile/Library/Preferences/com.daniilpashin.coloredvk.plist"
 
@@ -19,7 +19,7 @@
 @implementation ColoredVKListControllerConfig
 - (id)specifiers
 {
-	if(!_specifiers) {
+	if (!_specifiers) {
         _specifiers = [self loadSpecifiersFromPlistName:@"ColoredVK_Config" target:self];
     }
     return _specifiers;
@@ -37,7 +37,7 @@
 
 - (void)showColorPicker:(PSSpecifier *)specifier
 {
-    ColorPickerViewController *picker = [[ColorPickerViewController alloc] initWithIdentifier:[specifier identifier]];
+    ColoredVKColorPickerViewController *picker = [[ColoredVKColorPickerViewController alloc] initWithIdentifier:[specifier identifier]];
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:picker];
     nav.modalPresentationStyle = 2;
     [self.navigationController presentViewController:nav animated:YES completion:nil];
@@ -62,34 +62,45 @@
 
 - (void)chooseImage
 {
-    CRMediaPickerController *mediaPickerController = [[CRMediaPickerController alloc] init];
-    mediaPickerController.delegate = self;
-    mediaPickerController.mediaType = CRMediaPickerControllerMediaTypeImage;
-    mediaPickerController.sourceType = CRMediaPickerControllerSourceTypePhotoLibrary;
-    [mediaPickerController show];
+    UIImagePickerController *picker = [UIImagePickerController new];
+    picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    picker.delegate = self;
+        
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        picker.modalPresentationStyle = UIModalPresentationPopover;
+        picker.popoverPresentationController.permittedArrowDirections = 0;
+        picker.popoverPresentationController.sourceView = self.view;
+        picker.popoverPresentationController.sourceRect = self.view.bounds;
+    }
+    [self.navigationController presentViewController:picker animated:YES completion:nil];
 }
 
-- (void)CRMediaPickerController:(CRMediaPickerController *)mediaPickerController didFinishPickingAsset:(ALAsset *)asset error:(NSError *)error
-{
-    UIImage *image = [UIImage imageWithCGImage:asset.defaultRepresentation.fullScreenImage];
-    image = [self imageByCropping:image toRect:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 150)];
-
-    BOOL suc = [UIImagePNGRepresentation(image) writeToFile:@"/private/var/mobile/Library/Preferences/navBarImage.png" atomically:YES];
-    if (suc) [self success];
-}
-
-- (void)success
-{
-    UIImage *checkmarkImage = [[UIImage alloc] initWithContentsOfFile:@"/Library/PreferenceBundles/ColoredVK.bundle/Checkmark.png"];
-    checkmarkImage = [self image:checkmarkImage withTintColor:[UIColor whiteColor]];
-
-    MBProgressHUD *hud = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
-    hud.mode = MBProgressHUDModeCustomView;
-    hud.customView = [[UIImageView alloc] initWithImage:checkmarkImage];
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingImage:(UIImage *)image editingInfo:(NSDictionary *)editingInfo
+{    
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:picker.view animated:YES];
+    hud.completionBlock = ^{
+        [picker dismissViewControllerAnimated:YES completion:nil];
+    };
     
-    [self.navigationController.view addSubview:hud];
-    [hud showAnimated:YES];
-    [hud hideAnimated:YES afterDelay:1.2];
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        UIImage *croppedImage = [self imageByCropping:image toRect:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 150)];
+        
+        NSError *error = nil;
+        [UIImagePNGRepresentation(croppedImage) writeToFile:@"/private/var/mobile/Library/Preferences/navBarImage.png" options:NSDataWritingAtomic error:&error];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (!error) {
+                UIImage *checkmarkImage = [[UIImage alloc] initWithContentsOfFile:@"/Library/PreferenceBundles/ColoredVK.bundle/Checkmark.png"];
+                checkmarkImage = [self image:checkmarkImage withTintColor:[UIColor blackColor]];
+                
+                hud.mode = MBProgressHUDModeCustomView;
+                hud.customView = [[UIImageView alloc] initWithImage:checkmarkImage];
+                [hud hideAnimated:YES afterDelay:1.5];
+            } else {
+                hud.detailsLabel.text = error.localizedDescription;
+                [hud hideAnimated:YES afterDelay:3.0];
+            }
+        });
+    });
 }
 
 - (UIImage *)imageByCropping:(UIImage *)imageToCrop toRect:(CGRect)rect

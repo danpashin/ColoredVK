@@ -1,20 +1,20 @@
 //
-//  CVKColorCell.m
+//  ColoredVKColorCell.m
 //  ColoredVK
 //
 //  Copyright (c) 2015 Daniil Pashin. All rights reserved.
 //  
 
-#import "CVKColorCell.h"
+#import "ColoredVKColorCell.h"
 #import <Foundation/Foundation.h>
 #import "headers/PSSpecifier.h"
 
 #define tweakPreferencePath @"/User/Library/Preferences/com.daniilpashin.coloredvk.plist"
 
 
-@implementation CVKColorCell
+@implementation ColoredVKColorCell
 
-- (id)initWithStyle:(NSInteger)style reuseIdentifier:(NSString *)identifier specifier:(PSSpecifier *)specifier
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier specifier:(PSSpecifier *)specifier
 {
     self = [super initWithStyle:style reuseIdentifier:identifier specifier:specifier];
     if (self) {

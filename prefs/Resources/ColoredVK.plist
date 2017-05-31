@@ -52,21 +52,7 @@
 			<key>cell</key>
 			<string>PSButtonCell</string>
 			<key>action</key>
-			<string>sendMail:</string>
-		</dict>
-		<dict>
-			<key>label</key>
-			<string>iMessage</string>
-			<key>icon</key>
-			<string>iMessage.png</string>
-			<key>cell</key>
-			<string>PSButtonCell</string>
-			<key>action</key>
-			<string>sendiMessage:</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSGroupCell</string>
+			<string>actionSendMail</string>
 		</dict>
 		<dict>
 			<key>label</key>
@@ -76,17 +62,7 @@
 			<key>cell</key>
 			<string>PSButtonCell</string>
 			<key>action</key>
-			<string>tweet:</string>
-		</dict>
-		<dict>
-			<key>label</key>
-			<string>Core Jailbreak (VK)</string>
-			<key>icon</key>
-			<string>coreJBLogo.png</string>
-			<key>cell</key>
-			<string>PSButtonCell</string>
-			<key>action</key>
-			<string>openCJBGroup:</string>
+			<string>actionTweet</string>
 		</dict>
 		<dict>
 			<key>cell</key>

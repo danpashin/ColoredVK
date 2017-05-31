@@ -9,23 +9,23 @@
 #import <UIKit/UIKit.h>
 #import <MobileGestalt/MobileGestalt.h>
 #import "headers/NSTask.h"
+#import "headers/PSSpecifier.h"
 #import <Social/SLComposeViewController.h>
 #import <Social/SLServiceTypes.h>
-#import "headers/PSSpecifier.h"
 
-#define language [NSBundle mainBundle].preferredLocalizations.firstObject
 static NSString *const tweakPreferencePath = @"/User/Library/Preferences/com.daniilpashin.coloredvk.plist";
 
 
 @implementation ColoredVKListController
+
 - (id)specifiers
 {
     if(!_specifiers) {
-        NSMutableArray *specifiersArray = [[self loadSpecifiersFromPlistName:@"ColoredVK" target:self] copy];
+        NSMutableArray *specifiersArray = [[self loadSpecifiersFromPlistName:@"ColoredVK" target:self] mutableCopy];
         if (specifiersArray.count > 1) [specifiersArray insertObject:[self footer] atIndex:specifiersArray.count-1];
         else [specifiersArray addObject:[self footer]];
         
-        _specifiers = specifiersArray;
+        _specifiers = [specifiersArray copy];
     }
     return _specifiers;
 }
@@ -47,7 +47,7 @@ static NSString *const tweakPreferencePath = @"/User/Library/Preferences/com.dan
     CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.daniilpashin.coloredvk.prefs.changed"), NULL, NULL, YES);
 }
 
-- (void) viewDidLoad
+- (void)viewDidLoad
 {
     [super viewDidLoad];
     [UISwitch appearanceWhenContainedIn:self.class, nil].onTintColor = [UIColor colorWithRed:0.0 green:122.0/255.0 blue:1.0 alpha:1.0];
@@ -55,11 +55,12 @@ static NSString *const tweakPreferencePath = @"/User/Library/Preferences/com.dan
     self.title = @"";
 }
 
-- (void) tweet:(id)sender
+- (void)actionTweet
 {
-    NSString *text = @"";
-    if ([language isEqualToString:@"ru"]) text = @"Я использую #ColoredVK от @daniil_pashin для раскрашивания моего VKApp!";
-    else text = @"I'm using #ColoredVK by @daniil_pashin to colorize my VKApp!";
+    NSString *text = @"I'm using #ColoredVK by @daniil_pashin to colorize my VKApp!";
+    
+    if ([[NSBundle mainBundle].preferredLocalizations.firstObject containsString:@"ru"])
+        text = @"Я использую #ColoredVK от @daniil_pashin для раскрашивания моего VKApp!";
     
     SLComposeViewController *composeController = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
     [composeController setInitialText:text];
@@ -67,25 +68,7 @@ static NSString *const tweakPreferencePath = @"/User/Library/Preferences/com.dan
 
 }
 
-- (void) sendiMessage:(id)sender
-{
-    NSString *bodyText = @"";
-    if ([language isEqualToString:@"ru"])       bodyText = @"Здравствуйте, Даниил.\n";
-    else                                        bodyText = @"Hello, Daniil.\n";
-
-    MFMessageComposeViewController *mc = [MFMessageComposeViewController new];
-    mc.messageComposeDelegate = self;
-    mc.recipients = @[@"daniilpashin@icloud.com"];
-    mc.body = bodyText;
-    [self presentViewController:mc animated:YES completion:NULL];
-}
-
-- (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result
-{
-    [self dismissViewControllerAnimated:YES completion:NULL];
-}
-
-- (void) sendMail:(id)sender
+- (void)actionSendMail
 {
     if (![[NSFileManager defaultManager] fileExistsAtPath:@"/var/tmp/dpkgl.log"]) system("/usr/bin/dpkg -l >/var/tmp/dpkgl.log");
     
@@ -96,9 +79,9 @@ static NSString *const tweakPreferencePath = @"/User/Library/Preferences/com.dan
     NSString *os_build = (__bridge NSString *)MGCopyAnswer(kMGBuildVersion);
     NSString *vk_version = [NSString stringWithFormat:@"%@", [prefs objectForKey:@"VKVersion"]];
 
-    MFMailComposeViewController *email = [MFMailComposeViewController new];
-    email.mailComposeDelegate = self;
-    email.subject = [NSString stringWithFormat:@"ColoredVK v: %@",[self getVersion]];
+    self.email = [MFMailComposeViewController new];
+    self.email.mailComposeDelegate = self;
+    self.email.subject = [NSString stringWithFormat:@"ColoredVK v: %@", [self getVersion]];
 
     
     NSString *pattern = [NSString stringWithFormat:
@@ -110,23 +93,24 @@ static NSString *const tweakPreferencePath = @"/User/Library/Preferences/com.dan
                          -----------------", 
                          os_version, os_build, device, vk_version];
     
-    NSString *emailText = @"";
-    if ([language isEqualToString:@"ru"]) emailText = [@"Здравствуйте, Даниил. " stringByAppendingString:pattern];
-    else emailText = [@"Hello, Daniil. " stringByAppendingString:pattern];
+    NSString *emailText = [@"Hello, Daniil. " stringByAppendingString:pattern];
+    
+    if ([[NSBundle mainBundle].preferredLocalizations.firstObject containsString:@"ru"])
+        emailText = [@"Здравствуйте, Даниил. " stringByAppendingString:pattern];
 
-    [email setMessageBody:emailText isHTML:NO];
-    [email setToRecipients:@[@"daniilpashin@icloud.com"]];
-    [email addAttachmentData:[NSData dataWithContentsOfFile: @"/var/tmp/cydia.log"] mimeType:@"text/plain" fileName:@"cydia.log"];
-    [email addAttachmentData:[NSData dataWithContentsOfFile:@"/var/tmp/dpkgl.log"] mimeType:@"text/plain" fileName:@"dpkgl.log"];
-    [email addAttachmentData:[NSData dataWithContentsOfFile:@"/private/var/mobile/Library/Preferences/com.daniilpashin.coloredvk.plist"] mimeType:@"text/plain" fileName:@"prefs.plist"];
+    [self.email setMessageBody:emailText isHTML:NO];
+    [self.email setToRecipients:@[@"daniilpashin@icloud.com"]];
+    [self.email addAttachmentData:[NSData dataWithContentsOfFile: @"/var/tmp/cydia.log"] mimeType:@"text/plain" fileName:@"cydia.log"];
+    [self.email addAttachmentData:[NSData dataWithContentsOfFile:@"/var/tmp/dpkgl.log"] mimeType:@"text/plain" fileName:@"dpkgl.log"];
+    [self.email addAttachmentData:[NSData dataWithContentsOfFile:@"/private/var/mobile/Library/Preferences/com.daniilpashin.coloredvk.plist"] mimeType:@"text/plain" fileName:@"prefs.plist"];
 
-    [self.rootController presentViewController:email animated:YES completion:nil];
+    [self.navigationController presentViewController:self.email animated:YES completion:nil];
 
 }
 
-- (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error
+- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error
 {
-    [self.rootController dismissViewControllerAnimated:YES completion:nil];
+    [self.navigationController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (PSSpecifier *)footer
@@ -140,14 +124,13 @@ static NSString *const tweakPreferencePath = @"/User/Library/Preferences/com.dan
 
 - (NSString *)getVersion
 {
-    NSTask *task = [[NSTask alloc] init];
-    [task setLaunchPath: @"/bin/sh"];
-    [task setArguments:[NSArray arrayWithObjects: @"-c", @"dpkg -s com.daniilpashin.coloredvk | grep 'Version'", nil]];
-    NSPipe *pipe = [NSPipe pipe];
-    [task setStandardOutput:pipe];
+    NSTask *task = [NSTask new];
+    task.launchPath = @"/bin/sh";
+    task.arguments = [NSArray arrayWithObjects: @"-c", @"dpkg -s com.daniilpashin.coloredvk | grep 'Version'", nil];
+    task.standardOutput = [NSPipe pipe];
     [task launch];
 
-    NSData *data = [[[task standardOutput] fileHandleForReading] readDataToEndOfFile];
+    NSData *data = [[task.standardOutput fileHandleForReading] readDataToEndOfFile];
     NSString *version = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
     version = [version stringByReplacingOccurrencesOfString:@"Version: " withString:@""];
     version = [version stringByReplacingOccurrencesOfString:@"\n" withString:@""];
@@ -164,9 +147,4 @@ static NSString *const tweakPreferencePath = @"/User/Library/Preferences/com.dan
     return dateString;
 }
 
-- (void) openCJBGroup:(id)sender
-{
-    NSURL *vkurl = [NSURL URLWithString:@"vk://vk.com/corejailbreak"];
-    if ([[UIApplication sharedApplication] canOpenURL:vkurl]) [[UIApplication sharedApplication] openURL:vkurl];
-}
 @end
