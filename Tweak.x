@@ -35,11 +35,12 @@ static UIColor *savedColorForIdentifier(NSString *identifier)
     NSString *hueKey = [@"Hue" stringByAppendingString:identifier];
     NSString *satKey = [@"Sat" stringByAppendingString:identifier];
     NSString *briKey = [@"Bri" stringByAppendingString:identifier];
-    if (dict[hueKey] == nil || dict[satKey] == nil|| dict[briKey] == nil) return [UIColor blackColor];
-    CGFloat hue, sat, bri;
-    hue = [dict[hueKey] floatValue];
-    sat = [dict[satKey] floatValue];
-    bri = [dict[briKey] floatValue];
+    if (dict[hueKey] == nil || dict[satKey] == nil|| dict[briKey] == nil)
+        return [UIColor blackColor];
+    
+    CGFloat hue = [dict[hueKey] floatValue];
+    CGFloat sat = [dict[satKey] floatValue];
+    CGFloat bri = [dict[briKey] floatValue];
     UIColor *color = [UIColor colorWithHue:hue saturation:sat brightness:bri alpha:1];
     return color;
 }
